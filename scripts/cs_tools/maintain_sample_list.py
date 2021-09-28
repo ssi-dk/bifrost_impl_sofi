@@ -105,7 +105,7 @@ def print_samples(sample_iter: Iterable):
     for sample in sample_iter:
         print(sample[0], sample[1])
 
-def main():
+def maintain():
     parser = argparse.ArgumentParser(description="Create and maintain a global sample list for chewieSnake.")
     parser.add_argument('sample_list', help="Path and filename for sample list. If file does not exist it will be created.")
     parser.add_argument('-d', '--fastq_dir', help="Path to existing directory containing fastq files. Default: current directory.")
@@ -138,4 +138,4 @@ def main():
         container.save()
 
 if __name__ == '__main__':
-    main()
+    maintain()
