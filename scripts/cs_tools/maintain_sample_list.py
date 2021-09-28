@@ -105,7 +105,7 @@ def print_samples(sample_iter: Iterable):
     for sample in sample_iter:
         print(sample[0], sample[1])
 
-def maintain(sample_list: str, fastq_dir: str, species: str):
+def maintain(species: str, sample_list: str, fastq_dir: str) -> None:
     sample_list_path = pathlib.Path(sample_list)
     print(f"Sample list path: {sample_list_path}")
     container = SampleContainer(sample_list_path)
@@ -138,4 +138,4 @@ if __name__ == '__main__':
         samples where --species - with underscores replaced by spaces - match the second column in this file will be added to the \
         sample list.")
     args = parser.parse_args()
-    maintain(args.sample_list, args.fastq_dir, args.species)
+    maintain(args.species, args.sample_list, args.fastq_dir)
