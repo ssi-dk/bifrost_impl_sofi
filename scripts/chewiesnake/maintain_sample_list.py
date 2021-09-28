@@ -59,8 +59,9 @@ def read_sample_list(sample_list):
     while True:
         try:
             line: str = next(sample_list)
-            sample_name, file1, file2 = line.rstrip().split('\t')
-            output.append((sample_name, file1, file2))
+            if len(line) > 1:  # If not in last line (which should only contain a '\n')
+                sample_name, file1, file2 = line.rstrip().split('\t')
+                output.append((sample_name, file1, file2))
         except StopIteration:
             break
     return output
