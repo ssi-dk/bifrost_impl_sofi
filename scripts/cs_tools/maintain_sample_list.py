@@ -105,10 +105,9 @@ def print_samples(sample_iter: Iterable):
     for sample in sample_iter:
         print(sample[0], sample[1])
 
-def maintain(species: str, sample_list: str, fastq_dir: str) -> None:
-    sample_list_path = pathlib.Path(sample_list)
-    print(f"Sample list path: {sample_list_path}")
-    container = SampleContainer(sample_list_path)
+def maintain(species: str, sample_list: pathlib.Path, fastq_dir: pathlib.Path) -> None:
+    print(f"Sample list: {str(sample_list)}")
+    container = SampleContainer(sample_list)
     print("OLD SAMPLES:")
     print_samples(container.list_samples())
     fastq_dir = pathlib.Path(args.fastq_dir or os.getcwd())
@@ -120,7 +119,7 @@ def maintain(species: str, sample_list: str, fastq_dir: str) -> None:
         print("Do not filter on species name.")
     new_samples = find_new_samples(fastq_dir, species)
     if len(new_samples) == 0:
-        print(f"No fastq files found in folder {fastq_dir} - {sample_list_path} not modified.")
+        print(f"No fastq files found in folder {fastq_dir} - {sample_list} not modified.")
     else:
         print("NEW SAMPLES:")
         print_samples(new_samples)
@@ -138,4 +137,6 @@ if __name__ == '__main__':
         samples where --species - with underscores replaced by spaces - match the second column in this file will be added to the \
         sample list.")
     args = parser.parse_args()
-    maintain(args.species, args.sample_list, args.fastq_dir)
+    sample_list = pathlib.Path(args.sample_list)
+    fastq_dir = pathlib.Path(args.fastq_dir)
+    maintain(args.species, sample_list, fastq_dir)
