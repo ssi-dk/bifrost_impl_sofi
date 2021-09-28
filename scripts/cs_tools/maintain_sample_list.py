@@ -105,17 +105,8 @@ def print_samples(sample_iter: Iterable):
     for sample in sample_iter:
         print(sample[0], sample[1])
 
-def maintain():
-    parser = argparse.ArgumentParser(description="Create and maintain a global sample list for chewieSnake.")
-    parser.add_argument('sample_list', help="Path and filename for sample list. If file does not exist it will be created.")
-    parser.add_argument('-d', '--fastq_dir', help="Path to existing directory containing fastq files. Default: current directory.")
-    parser.add_argument('-s', '--species', help="Optional species name to filter on. Spaces between name components must be \
-        replaced with underscores; f. ex. Salmonella_enterica.\
-        If provided, a lookup will be made in a file named 'run_metadata.tsv' inside fastq_dir, and only those \
-        samples where --species - with underscores replaced by spaces - match the second column in this file will be added to the \
-        sample list.")
-    args = parser.parse_args()
-    sample_list_path = pathlib.Path(args.sample_list)
+def maintain(sample_list: str, fastq_dir: str, species: str):
+    sample_list_path = pathlib.Path(sample_list)
     print(f"Sample list path: {sample_list_path}")
     container = SampleContainer(sample_list_path)
     print("OLD SAMPLES:")
@@ -138,4 +129,13 @@ def maintain():
         container.save()
 
 if __name__ == '__main__':
-    maintain()
+    parser = argparse.ArgumentParser(description="Create and maintain a global sample list for chewieSnake.")
+    parser.add_argument('sample_list', help="Path and filename for sample list. If file does not exist it will be created.")
+    parser.add_argument('-d', '--fastq_dir', help="Path to existing directory containing fastq files. Default: current directory.")
+    parser.add_argument('-s', '--species', help="Optional species name to filter on. Spaces between name components must be \
+        replaced with underscores; f. ex. Salmonella_enterica.\
+        If provided, a lookup will be made in a file named 'run_metadata.tsv' inside fastq_dir, and only those \
+        samples where --species - with underscores replaced by spaces - match the second column in this file will be added to the \
+        sample list.")
+    args = parser.parse_args()
+    maintain(args.sample_list, args.fastq_dir, args.species)
