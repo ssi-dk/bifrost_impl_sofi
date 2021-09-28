@@ -1,10 +1,11 @@
 import os
 import sys
 import re
-# import argparse
 import subprocess
-from typing import Set, List, Text, Dict
+from typing import Set, List, Dict
+from pathlib import Path
 
+from cs_tools.maintain_sample_list import maintain
 
 # def cmdline_args() -> argparse.Namespace:
 
@@ -48,6 +49,24 @@ def launch_bifrost(script_dir: str, log_dir: str, settings_dir: str, institution
     process_out, process_err = process.communicate()
     sys.stdout.write(str(process_out))
     sys.stderr.write(str(process_err))
+
+def launch_chewiesnake(script_dir: Path, species_dir: Path, fastq_dir: Path, log_dir: Path) -> None:
+
+    # Maintain sample list
+    sample_list = Path(species_dir, "samples.tsv")
+    sample_list_lockfile = Path(species_dir, "samples.tsv.lock")
+    if sample_list_lockfile.exists():
+        sys.stdout.write(f"Could not lock sample list: {sample_list}")
+        return
+    with open(sample_list_lockfile, 'w') as lock:
+        pass
+    maintain(species_dir, sample_list, fastq_dir)
+    sample_list_lockfile.unlink()
+
+    # Run chewieSnake
+    command: str = f'cd {species_dir};\
+ qsub -W umask=002 -N "chewie_{species_dir.name}" -e {log_dir} -o {log_dir} -F "{str(sample_list)}" {str(script_dir)}/cs_tools/run_chewiesnake.sh'
+
 
 def get_year_folders(dirname):
     year_run_folders = []
@@ -96,6 +115,14 @@ def main(args: Dict) -> None:
     for institution, year, run_name in to_run:
         print(f"{institution}\t{year}\t{run_name}")
         launch_bifrost(args["script_dir"], args["log_dir"], args["settings_dir"], institution, year, run_name)
+        for species in ('Salmonella_enterica',):
+            print(f"Running chewieSnake for {species}")
+            script_dir = Path(args["script_dir"])
+            species_dir = Path(args["chewiesnake_config_dir"], species)
+            fastq_dir = Path(args["raw_data_dir"], institution, year, run_name)
+            log_dir = Path(args["log_dir"])
+            launch_chewiesnake(script_dir, species_dir, fastq_dir, log_dir)
+
 
 if __name__ == '__main__':
 
@@ -107,5 +134,6 @@ if __name__ == '__main__':
         "settings_dir": os.environ["BIFROST_SETTINGS_DIR"],
         "script_dir": os.environ["BIFROST_SCRIPT_DIR"],
         "log_dir": os.environ["BIFROST_LOG_DIR"],
+        "chewiesnake_config_dir": os.environ["CHEWIESNAKE_CONFIG_DIR"],
     }
     main(args)
