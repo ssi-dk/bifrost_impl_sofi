@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
 import argparse
-import pathlib
+from pathlib import Path
 import os
-import sys
 from typing import Iterable
 
 """
@@ -22,9 +21,9 @@ Author: Finn Gruwier Larsen, figl@ssi.dk
 
 class SampleContainer:
     _samples: dict = {}
-    _sample_list_path: pathlib.Path
+    _sample_list_path: Path
 
-    def __init__(self, sample_list_path: pathlib.Path):
+    def __init__(self, sample_list_path: Path):
         self._sample_list_path = sample_list_path
         if self._sample_list_path.exists():
             print(f"{str(self._sample_list_path)} exists - reading file.")
@@ -66,7 +65,7 @@ def read_sample_list(sample_list):
             break
     return output
 
-def find_new_samples(fastq_dir: pathlib.Path, species: str = None):
+def find_new_samples(fastq_dir: Path, species: str = None):
     """
     Find samples in folder fastq_dir.
     If spec is provided, lookup species in run_metadata.tsv and filter by spec in second column.
@@ -82,7 +81,7 @@ def find_new_samples(fastq_dir: pathlib.Path, species: str = None):
     output = list()
     while True:
         try:
-            file1_path = pathlib.Path(next(r1_files_gen))
+            file1_path = Path(next(r1_files_gen))
             sample_name = file1_path.stem[:-22]
             if species:
                 found_species: str = species_lookup_dict[sample_name.replace("'", "")]
@@ -105,12 +104,12 @@ def print_samples(sample_iter: Iterable):
     for sample in sample_iter:
         print(sample[0], sample[1])
 
-def maintain(species: str, sample_list: pathlib.Path, fastq_dir: pathlib.Path) -> None:
+def maintain(species: str, sample_list: Path, fastq_dir: Path) -> None:
     print(f"Sample list: {str(sample_list)}")
     container = SampleContainer(sample_list)
     print("OLD SAMPLES:")
     print_samples(container.list_samples())
-    fastq_dir = pathlib.Path(args.fastq_dir or os.getcwd())
+    fastq_dir = Path(args.fastq_dir or os.getcwd())
     print(f"Folder to add fastq files from: {fastq_dir}")
     if args.species:
         species = str(args.species).replace('_', ' ')
@@ -137,6 +136,6 @@ if __name__ == '__main__':
         samples where --species - with underscores replaced by spaces - match the second column in this file will be added to the \
         sample list.")
     args = parser.parse_args()
-    sample_list = pathlib.Path(args.sample_list)
-    fastq_dir = pathlib.Path(args.fastq_dir)
+    sample_list = Path(args.sample_list)
+    fastq_dir = Path(args.fastq_dir)
     maintain(args.species, sample_list, fastq_dir)
