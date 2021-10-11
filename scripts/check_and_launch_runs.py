@@ -40,7 +40,7 @@ from cs_tools.maintain_sample_list import maintain
 
 def launch_bifrost(script_dir: str, log_dir: str, settings_dir: str, institution: str, year: str, run_name: str) -> None:
     command: str = f'cd {script_dir};\
- qsub -W umask=002 -N "bf_launch_{run_name}" -e {log_dir} -o {log_dir} -F "{institution} {year} {run_name} {settings_dir}" {script_dir}/launch_bifrost.sh '
+    qsub -W umask=002 -N "bf_launch_{run_name}" -e {log_dir} -o {log_dir} -F "{institution} {year} {run_name} {settings_dir}" {script_dir}/launch_bifrost.sh '
     process: subprocess.Popen = subprocess.Popen(command,
                                                  stdout=subprocess.PIPE,
                                                  stderr=subprocess.STDOUT,
@@ -65,8 +65,15 @@ def launch_chewiesnake(script_dir: Path, species_dir: Path, fastq_dir: Path, log
 
     # Run chewieSnake
     command: str = f'cd {species_dir};\
- qsub -W umask=002 -N "chewie_{species_dir.name}" -e {log_dir} -o {log_dir} -F "{str(sample_list)}" {str(script_dir)}/cs_tools/run_chewiesnake.sh'
-
+    qsub -W umask=002 -N "chewie_{species_dir.name}" -e {log_dir} -o {log_dir} -F "{str(sample_list)}" {str(script_dir)}/cs_tools/run_chewiesnake.sh'
+    process: subprocess.Popen = subprocess.Popen(command,
+                                                 stdout=subprocess.PIPE,
+                                                 stderr=subprocess.STDOUT,
+                                                 shell=True,
+                                                 env=os.environ)
+    process_out, process_err = process.communicate()
+    sys.stdout.write(str(process_out))
+    sys.stderr.write(str(process_err))
 
 def get_year_folders(dirname):
     year_run_folders = []
