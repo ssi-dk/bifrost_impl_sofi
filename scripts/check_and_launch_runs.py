@@ -56,8 +56,8 @@ def launch_chewiesnake(script_dir: Path, species_dir: Path, fastq_dir: Path, log
     sample_list = Path(species_dir, "samples.tsv")
     sample_list_lockfile = Path(species_dir, "samples.tsv.lock")
     if sample_list_lockfile.exists():
-        sys.stdout.write(f"Could not lock sample list: {sample_list}")
-        return
+        sys.stdout.write(f"Could not lock sample list: {sample_list}. Exiting!\n")
+        sys.exit()
     with open(sample_list_lockfile, 'w') as lock:
         pass
     maintain(species_dir, sample_list, fastq_dir)
