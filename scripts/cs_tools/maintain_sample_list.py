@@ -109,9 +109,9 @@ def maintain(species: str, sample_list: Path, fastq_dir: Path) -> None:
     container = SampleContainer(sample_list)
     print("OLD SAMPLES:")
     print_samples(container.list_samples())
-    fastq_dir = Path(args.fastq_dir or os.getcwd())
+    fastq_dir = Path(fastq_dir or os.getcwd())
     print(f"Folder to add fastq files from: {fastq_dir}")
-    if args.species:
+    if species:
         species = str(args.species).replace('_', ' ')
         print(f"Filter on species name: {species}.")
     else:
