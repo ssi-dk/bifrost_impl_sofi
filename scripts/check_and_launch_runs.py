@@ -124,7 +124,7 @@ def main(args: Dict) -> None:
         species_dir = Path(args["chewiesnake_config_dir"], species)
         fastq_dir = Path(args["raw_data_dir"], institution, year, run_name)
         log_dir = Path(args["log_dir"])
-        sample_list = Path(species_dir, "samples.tsv")
+        sample_list = Path(species_dir, "sample_list.tsv")
         maintain(species, sample_list, fastq_dir)
         # launch_chewiesnake(script_dir, species_dir, fastq_dir, log_dir)
 
