@@ -51,10 +51,11 @@ def launch_bifrost(script_dir: str, log_dir: str, settings_dir: str, institution
     sys.stderr.write(str(process_err))
 
 def launch_chewiesnake(script_dir: Path, species_dir: Path, log_dir: Path) -> None:
-    sample_list = Path(species_dir, "samples.tsv")
+    sample_list = Path(species_dir, "sample_list.tsv")
     # Todo: remove --dryrun
     command: str = f'cd {species_dir};\
     qsub -W umask=002 -N "chewie_{species_dir.name}" -e {log_dir} -o {log_dir} -F "{str(sample_list)} --dryrun" {str(script_dir)}/cs_tools/run_chewiesnake.sh'
+    print("Command:", command)
     process: subprocess.Popen = subprocess.Popen(command,
                                                  stdout=subprocess.PIPE,
                                                  stderr=subprocess.STDOUT,
