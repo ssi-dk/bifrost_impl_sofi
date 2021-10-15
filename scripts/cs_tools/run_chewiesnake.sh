@@ -32,7 +32,7 @@ cd $DIR
 # Read parameters from species config
 source config.sh
 echo Species: $SPECIES
-SAMPLE_LIST=$DIR/$1
+SAMPLE_LIST=$1
 echo Sample list: $SAMPLE_LIST
 SCHEME=$DIR/schemes/$SCHEME
 echo Scheme: $SCHEME
