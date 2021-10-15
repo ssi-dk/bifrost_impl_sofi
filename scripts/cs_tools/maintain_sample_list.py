@@ -65,29 +65,27 @@ def read_sample_list(sample_list):
             break
     return output
 
-def find_new_samples(fastq_dir: Path, species: str = None):
+def find_new_samples(fastq_dir: Path, species: str):
     """
-    Find samples in folder fastq_dir.
-    If spec is provided, lookup species in run_metadata.tsv and filter by spec in second column.
+    Find samples of provided species in folder fastq_dir.
+    This is done by, looking up species in run_metadata.tsv and filter by 'species' in second column.
     Return a list of (sample_name, file1, file2) where file1, file2 have full paths.
     """
     r1_files_gen = fastq_dir.glob("*_S*_R1_001.fastq*")
-    if species:
-        with open(fastq_dir.joinpath('run_metadata.tsv'), 'r') as run_metadata_tsv:
-            species_lookup_dict = dict()
-            for line in run_metadata_tsv:
-                sample_species = line.split('\t')[0:2]
-                species_lookup_dict[sample_species[0]] = sample_species[1]
+    with open(fastq_dir.joinpath('run_metadata.tsv'), 'r') as run_metadata_tsv:
+        species_lookup_dict = dict()
+        for line in run_metadata_tsv:
+            sample_species = line.split('\t')[0:2]
+            species_lookup_dict[sample_species[0]] = sample_species[1]
     output = list()
     while True:
         try:
             file1_path = Path(next(r1_files_gen))
             sample_name = file1_path.stem[:-22]
-            if species:
-                found_species: str = species_lookup_dict[sample_name.replace("'", "")]
-                if not found_species == species:
-                    print(f"Ignoring {sample_name} - species '{found_species}' does not match '{species}'.")
-                    continue
+            found_species: str = species_lookup_dict[sample_name.replace("'", "")]
+            if not found_species == species:
+                print(f"Ignoring {sample_name} - species '{found_species}' does not match '{species}'.")
+                continue
             file1_filename = file1_path.parts[-1]
             listified_filename = list(file1_filename)
             listified_filename[-14] = '2'
@@ -111,11 +109,8 @@ def maintain(species: str, sample_list: Path, fastq_dir: Path) -> None:
     print_samples(container.list_samples())
     fastq_dir = Path(fastq_dir or os.getcwd())
     print(f"Folder to add fastq files from: {fastq_dir}")
-    if species:
-        species = str(species).replace('_', ' ')
-        print(f"Filter on species name: {species}.")
-    else:
-        print("Do not filter on species name.")
+    species = str(species).replace('_', ' ')
+    print(f"Filter on species name: {species}.")
     new_samples = find_new_samples(fastq_dir, species)
     if len(new_samples) == 0:
         print(f"No fastq files found in folder {fastq_dir} - {sample_list} not modified.")
