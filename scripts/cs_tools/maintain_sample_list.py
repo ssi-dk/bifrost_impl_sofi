@@ -112,7 +112,7 @@ def maintain(species: str, sample_list: Path, fastq_dir: Path) -> None:
     fastq_dir = Path(fastq_dir or os.getcwd())
     print(f"Folder to add fastq files from: {fastq_dir}")
     if species:
-        species = str(args.species).replace('_', ' ')
+        species = str(species).replace('_', ' ')
         print(f"Filter on species name: {species}.")
     else:
         print("Do not filter on species name.")
