@@ -126,7 +126,8 @@ def maintain(species: str, sample_list: Path, fastq_dir: Path) -> None:
             container.add_sample(*new_sample)
         container.save()
 
-if __name__ == '__main__':
+# Running maintain_sample_list.py as a standalone script is currently not maintained.
+""" if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Create and maintain a global sample list for chewieSnake.")
     parser.add_argument('sample_list', help="Path and filename for sample list. If file does not exist it will be created.")
     parser.add_argument('-d', '--fastq_dir', help="Path to existing directory containing fastq files. Default: current directory.")
@@ -139,3 +140,4 @@ if __name__ == '__main__':
     sample_list = Path(args.sample_list)
     fastq_dir = Path(args.fastq_dir)
     maintain(args.species, sample_list, fastq_dir)
+ """
