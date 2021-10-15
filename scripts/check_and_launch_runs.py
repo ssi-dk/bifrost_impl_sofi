@@ -101,6 +101,7 @@ def main(args: Dict) -> None:
     #         output.add(run_name)
 
     # Bifrost
+    print("Start Bifrost pipeline")
     print("Raw data folders:")
     for institution, year, run in seqs:
         print(f"{institution}\t{year}\t{run}")
@@ -114,6 +115,7 @@ def main(args: Dict) -> None:
         # launch_bifrost(args["script_dir"], args["log_dir"], args["settings_dir"], institution, year, run_name)
 
     # chewieSnake
+    print("Start chewieSnake pipeline")
     species_to_run = ('Salmonella_enterica',)
     print(f"chewieSnake will run on these species: {species_to_run}")
     for species in species_to_run:
