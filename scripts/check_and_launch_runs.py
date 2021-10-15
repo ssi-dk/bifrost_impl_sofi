@@ -129,7 +129,7 @@ def main(args: Dict) -> None:
         log_dir = Path(args["log_dir"])
         sample_list = Path(species_dir, "sample_list.tsv")
         maintain(species, sample_list, fastq_dir)
-        # launch_chewiesnake(script_dir, species_dir, fastq_dir, log_dir)
+        launch_chewiesnake(script_dir, species_dir, log_dir)
 
 
 if __name__ == '__main__':
