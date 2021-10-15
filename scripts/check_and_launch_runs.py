@@ -100,26 +100,31 @@ def main(args: Dict) -> None:
     #     if os.path.isfile(os.path.join(run_dir, "complete.txt")):
     #         output.add(run_name)
 
-    print("Runs in raw_data folder:")
+    # Bifrost
+    print("Raw data folders:")
     for institution, year, run in seqs:
         print(f"{institution}\t{year}\t{run}")
-    print("Runs in output folder:")
+    print("Existing Bifrost output folders:")
     for institution, year, run in output:
         print(f"{institution}\t{year}\t{run}")
     to_run: List = list(seqs - output)
-    print("Running:")
+    print("Running Bifrost with these folders:")
     for institution, year, run_name in to_run:
         print(f"{institution}\t{year}\t{run_name}")
         # launch_bifrost(args["script_dir"], args["log_dir"], args["settings_dir"], institution, year, run_name)
-        for species in ('Salmonella_enterica',):
-            print(f"Running chewieSnake for {species}")
-            script_dir = Path(args["script_dir"])
-            species_dir = Path(args["chewiesnake_config_dir"], species)
-            fastq_dir = Path(args["raw_data_dir"], institution, year, run_name)
-            log_dir = Path(args["log_dir"])
-            sample_list = Path(species_dir, "samples.tsv")
-            maintain(species, sample_list, fastq_dir)
-            # launch_chewiesnake(script_dir, species_dir, fastq_dir, log_dir)
+
+    # chewieSnake
+    species_to_run = ('Salmonella_enterica',)
+    print(f"chewieSnake will run on these species: {species_to_run}")
+    for species in species_to_run:
+        print(f"Running chewieSnake for {species}")
+        script_dir = Path(args["script_dir"])
+        species_dir = Path(args["chewiesnake_config_dir"], species)
+        fastq_dir = Path(args["raw_data_dir"], institution, year, run_name)
+        log_dir = Path(args["log_dir"])
+        sample_list = Path(species_dir, "samples.tsv")
+        maintain(species, sample_list, fastq_dir)
+        # launch_chewiesnake(script_dir, species_dir, fastq_dir, log_dir)
 
 
 if __name__ == '__main__':
