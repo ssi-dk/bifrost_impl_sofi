@@ -110,7 +110,7 @@ def main(args: Dict) -> None:
     print("Running:")
     for institution, year, run_name in to_run:
         print(f"{institution}\t{year}\t{run_name}")
-        launch_bifrost(args["script_dir"], args["log_dir"], args["settings_dir"], institution, year, run_name)
+        # launch_bifrost(args["script_dir"], args["log_dir"], args["settings_dir"], institution, year, run_name)
         for species in ('Salmonella_enterica',):
             print(f"Running chewieSnake for {species}")
             script_dir = Path(args["script_dir"])
@@ -119,7 +119,7 @@ def main(args: Dict) -> None:
             log_dir = Path(args["log_dir"])
             sample_list = Path(species_dir, "samples.tsv")
             maintain(species, sample_list, fastq_dir)
-            launch_chewiesnake(script_dir, species_dir, fastq_dir, log_dir)
+            # launch_chewiesnake(script_dir, species_dir, fastq_dir, log_dir)
 
 
 if __name__ == '__main__':
