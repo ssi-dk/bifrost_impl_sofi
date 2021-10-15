@@ -50,17 +50,6 @@ def launch_bifrost(script_dir: str, log_dir: str, settings_dir: str, institution
     sys.stdout.write(str(process_out))
     sys.stderr.write(str(process_err))
 
-def maintain_cs_sample_list(species: str, species_dir: Path, fastq_dir: Path, log_dir: Path) -> None:
-    sample_list = Path(species_dir, "samples.tsv")
-    sample_list_lockfile = Path(species_dir, "samples.tsv.lock")
-    if sample_list_lockfile.exists():
-        sys.stdout.write(f"Could not lock sample list: {sample_list}. Exiting!\n")
-        sys.exit()
-    with open(sample_list_lockfile, 'w') as lock:
-        pass
-    maintain(species, sample_list, fastq_dir)
-    sample_list_lockfile.unlink()
-
 def launch_chewiesnake(script_dir: Path, species_dir: Path, fastq_dir: Path, log_dir: Path) -> None:
     sample_list = Path(species_dir, "samples.tsv")
     command: str = f'cd {species_dir};\
@@ -127,7 +116,8 @@ def main(args: Dict) -> None:
             species_dir = Path(args["chewiesnake_config_dir"], species)
             fastq_dir = Path(args["raw_data_dir"], institution, year, run_name)
             log_dir = Path(args["log_dir"])
-            maintain_cs_sample_list(species, species_dir, fastq_dir, log_dir)
+            sample_list = Path(species_dir, "samples.tsv")
+            maintain(species, sample_list, fastq_dir)
             launch_chewiesnake(script_dir, species_dir, fastq_dir, log_dir)
 
 
