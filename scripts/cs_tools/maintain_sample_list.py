@@ -27,7 +27,7 @@ class SampleContainer:
     def __init__(self, sample_list_path: Path):
         self._sample_list_path = sample_list_path
         if self._sample_list_path.exists():
-            print(f"{str(self._sample_list_path)} exists - reading file.")
+            print(f"Reading sample list in {str(self._sample_list_path)}.")
             with open(self._sample_list_path, 'r') as sample_list:
                 for (sample_name, file1, file2) in read_sample_list(sample_list):
                     if sample_name == 'sample':  # ignore header
