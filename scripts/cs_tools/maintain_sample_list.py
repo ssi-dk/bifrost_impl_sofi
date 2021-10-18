@@ -129,6 +129,7 @@ def maintain(species: str, sample_list: Path, fastq_dir: Path) -> bool:
         for new_sample in new_samples:
             container.add_sample(*new_sample)
         container.save()
+    return True
 
 # Running maintain_sample_list.py as a standalone script is currently not maintained.
 """ if __name__ == '__main__':
