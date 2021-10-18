@@ -92,9 +92,8 @@ def find_new_samples(fastq_dir: Path, metadata_file: Path, species: str):
             try:
                 found_species: str = species_lookup_dict[sample_name.replace("'", "")]
             except KeyError:
-                print(f"ERROR! For the sample {file1_path} we did not find the proper entry named {sample_name} in samples.tsv in the sample folder.")
-                print("Exiting.")
-                sys.exit()
+                print(f"For the sample {file1_path} we could not look up a species in the metadata file.")
+                found_species = "Unknown"
             if not found_species == species:
                 print(f"Ignoring {sample_name} - species '{found_species}' does not match '{species}'.")
                 continue
