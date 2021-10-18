@@ -66,14 +66,14 @@ def read_sample_list(sample_list):
             break
     return output
 
-def find_new_samples(fastq_dir: Path, species: str):
+def find_new_samples(fastq_dir: Path, metadata_file: Path, species: str):
     """
     Find samples of provided species in folder fastq_dir.
     This is done by, looking up species in run_metadata.tsv and filter by 'species' in second column.
     Return a list of (sample_name, file1, file2) where file1, file2 have full paths.
     """
     r1_files_gen = fastq_dir.glob("*_S*_R1_001.fastq*")
-    with open(fastq_dir.joinpath('run_metadata.tsv'), 'r') as run_metadata_tsv:
+    with open(metadata_file, 'r') as run_metadata_tsv:
         species_lookup_dict = dict()
         for line in run_metadata_tsv:
             sample_species = line.split('\t')[0:2]
@@ -108,7 +108,12 @@ def print_samples(sample_iter: Iterable):
     for sample in sample_iter:
         print(sample[0], sample[1])
 
-def maintain(species: str, sample_list: Path, fastq_dir: Path) -> None:
+def maintain(species: str, sample_list: Path, fastq_dir: Path) -> bool:
+    metadata_file = Path(fastq_dir.joinpath('run_metadata.tsv'))
+    if not metadata_file.exists():
+        print(f"Metadata file {metadata_file} does not exist.")
+        print(f"chewieSnake will not run on folder {fastq_dir}")
+        return False
     print(f"Sample list: {str(sample_list)}")
     container = SampleContainer(sample_list)
     print("OLD SAMPLES:")
@@ -117,7 +122,7 @@ def maintain(species: str, sample_list: Path, fastq_dir: Path) -> None:
     print(f"Folder to add fastq files from: {fastq_dir}")
     species = str(species).replace('_', ' ')
     print(f"Filter on species name: {species}.")
-    new_samples = find_new_samples(fastq_dir, species)
+    new_samples = find_new_samples(fastq_dir, metadata_file, species)
     if len(new_samples) == 0:
         print(f"No fastq files found in folder {fastq_dir} - {sample_list} not modified.")
     else:
