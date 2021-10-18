@@ -80,8 +80,10 @@ def find_new_samples(fastq_dir: Path, metadata_file: Path, species: str):
             sample_species = line.split('\t')[0:2]
             try:
                 species_lookup_dict[sample_species[0]] = sample_species[1]
-            except KeyError:
+            except IndexError:
                 print(f"Error when looking for samples in fastq_dir {fastq_dir}")
+                print("sample_species list:")
+                print(sample_species)
     
     while True:
         try:
