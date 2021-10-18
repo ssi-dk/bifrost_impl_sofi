@@ -115,7 +115,7 @@ def maintain(species: str, sample_list: Path, fastq_dir: Path) -> bool:
         print(f"chewieSnake will not run on folder {fastq_dir}")
         return False
     container = SampleContainer(sample_list)
-    fastq_dir = Path(fastq_dir or os.getcwd())
+    fastq_dir = Path(fastq_dir)
     print(f"Folder to add fastq files from: {fastq_dir}")
     species = str(species).replace('_', ' ')
     print(f"Filter on species name: {species}.")
