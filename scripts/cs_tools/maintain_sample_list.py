@@ -34,11 +34,11 @@ class SampleContainer:
                         continue
                     self.add_sample(sample_name, file1, file2)
         else:
-            print(f"{str(self._sample_list_path)} does not exist - new file.")
+            print(f"{str(self._sample_list_path)} did not exist, but will be created.")
     
     def add_sample(self, sample_name: str, file1: str, file2: str):
-        if sample_name in self._samples:
-            print(f"{sample_name} is already in sample list.")
+        # if sample_name in self._samples:
+        #    print(f"{sample_name} is already in sample list.")
         self._samples[sample_name] = (file1, file2)
     
     def list_samples(self):
