@@ -114,7 +114,6 @@ def maintain(species: str, sample_list: Path, fastq_dir: Path) -> bool:
         print(f"Metadata file {metadata_file} does not exist.")
         print(f"chewieSnake will not run on folder {fastq_dir}")
         return False
-    print(f"Sample list: {str(sample_list)}")
     container = SampleContainer(sample_list)
     fastq_dir = Path(fastq_dir or os.getcwd())
     print(f"Folder to add fastq files from: {fastq_dir}")
