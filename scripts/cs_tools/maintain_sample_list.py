@@ -124,7 +124,7 @@ def maintain(species: str, sample_list: Path, fastq_dir: Path) -> bool:
     print(f"Filter on species name: {species}.")
     new_samples = find_new_samples(fastq_dir, metadata_file, species)
     if len(new_samples) == 0:
-        print(f"No fastq files found in folder {fastq_dir} - {sample_list} not modified.")
+        print(f"No new fastq files found in folder {fastq_dir} - {sample_list} not modified.")
     else:
         print("NEW SAMPLES:")
         print_samples(new_samples)
