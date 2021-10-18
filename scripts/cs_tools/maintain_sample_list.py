@@ -72,13 +72,17 @@ def find_new_samples(fastq_dir: Path, metadata_file: Path, species: str):
     This is done by, looking up species in run_metadata.tsv and filter by 'species' in second column.
     Return a list of (sample_name, file1, file2) where file1, file2 have full paths.
     """
+    output = list()
     r1_files_gen = fastq_dir.glob("*_S*_R1_001.fastq*")
     with open(metadata_file, 'r') as run_metadata_tsv:
         species_lookup_dict = dict()
         for line in run_metadata_tsv:
             sample_species = line.split('\t')[0:2]
-            species_lookup_dict[sample_species[0]] = sample_species[1]
-    output = list()
+            try:
+                species_lookup_dict[sample_species[0]] = sample_species[1]
+            except KeyError:
+                print(f"Error when looking for samples in fastq_dir {fastq_dir}")
+    
     while True:
         try:
             file1_path = Path(next(r1_files_gen))
