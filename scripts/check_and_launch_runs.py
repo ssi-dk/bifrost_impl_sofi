@@ -122,17 +122,20 @@ def main(args: Dict) -> None:
     # chewieSnake
     print()
     print("Start chewieSnake pipeline")
+    script_dir = Path(args["script_dir"])
+    log_dir = Path(args["log_dir"])
     species_to_run = ('Salmonella_enterica',)
     print(f"chewieSnake will run on these species: {  ', '.join(species_to_run)}")
     for species in species_to_run:
         print(f"Running chewieSnake for {species}")
-        script_dir = Path(args["script_dir"])
         species_dir = Path(args["chewiesnake_config_dir"], species)
-        fastq_dir = Path(args["raw_data_dir"], institution, year, run_name)
-        log_dir = Path(args["log_dir"])
-        sample_list = Path(species_dir, "sample_list.tsv")
-        maintain(species, sample_list, fastq_dir)
-        launch_chewiesnake(script_dir, species_dir, log_dir)
+        # Deliberately using seqs, not to_run in next line since chewieSnake does not care about Bifrost output
+        for institution, year, run_name in seqs:
+            print(f"Running chewieSnake for {institution}, {year}, {run_name}")
+            fastq_dir = Path(args["raw_data_dir"], institution, year, run_name)
+            sample_list = Path(species_dir, "sample_list.tsv")
+            maintain(species, sample_list, fastq_dir)
+            # launch_chewiesnake(script_dir, species_dir, log_dir)
 
 
 if __name__ == '__main__':
