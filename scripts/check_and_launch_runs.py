@@ -131,6 +131,7 @@ def main(args: Dict) -> None:
         species_dir = Path(args["chewiesnake_config_dir"], species)
         # Deliberately using seqs, not to_run in next line since chewieSnake does not care about Bifrost output
         for institution, year, run_name in seqs:
+            print()
             print(f"Running chewieSnake for {institution}, {year}, {run_name}")
             fastq_dir = Path(args["raw_data_dir"], institution, year, run_name)
             sample_list = Path(species_dir, "sample_list.tsv")
