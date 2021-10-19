@@ -135,11 +135,11 @@ def main(args: Dict) -> None:
             print()
             print(f"Update {species} sample list with samples from {fastq_dir}")
             if maintain(species, sample_list, fastq_dir):
-                print(f"Sample list update succeeded for {fastq_dir}")
+                print(f"Sample list update function succeeded for {fastq_dir}")
                 # print(f"Submit chewieSnake job for {fastq_dir}")
                 # launch_chewiesnake(script_dir, species_dir, log_dir)
             else:
-                print(f"Sample list update failed for {fastq_dir}")
+                print(f"Sample list update function failed for {fastq_dir}")
 
 if __name__ == '__main__':
 

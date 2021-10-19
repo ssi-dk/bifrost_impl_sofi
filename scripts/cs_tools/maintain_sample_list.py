@@ -27,14 +27,14 @@ class SampleContainer:
     def __init__(self, sample_list_path: Path):
         self._sample_list_path = sample_list_path
         if self._sample_list_path.exists():
-            print(f"Reading sample list in {str(self._sample_list_path)}.")
+            print(f"Reading sample list in {str(self._sample_list_path)}")
             with open(self._sample_list_path, 'r') as sample_list:
                 for (sample_name, file1, file2) in read_sample_list(sample_list):
                     if sample_name == 'sample':  # ignore header
                         continue
                     self.add_sample(sample_name, file1, file2)
         else:
-            print(f"{str(self._sample_list_path)} did not exist, but will be created.")
+            print(f"{str(self._sample_list_path)} did not exist, but will be created")
     
     def add_sample(self, sample_name: str, file1: str, file2: str):
         # if sample_name in self._samples:
@@ -115,16 +115,16 @@ def print_samples(sample_iter: Iterable):
 def maintain(species: str, sample_list: Path, fastq_dir: Path) -> bool:
     metadata_file = Path(fastq_dir.joinpath('run_metadata.tsv'))
     if not metadata_file.exists():
-        print(f"Metadata file {metadata_file} does not exist - ignoring folder {fastq_dir}")
+        print(f"Metadata file {metadata_file} does not exist - ignoring folder")
         return False
     container = SampleContainer(sample_list)
     fastq_dir = Path(fastq_dir)
     species = str(species).replace('_', ' ')
     new_samples = find_new_samples(fastq_dir, metadata_file, species)
     if len(new_samples) == 0:
-        print(f"No new fastq files found in folder {fastq_dir} - {sample_list} not modified.")
+        print(f"No new samples files found in {fastq_dir}")
     else:
-        print("NEW SAMPLES:")
+        print("New samples found in {fastq_dir}:")
         print_samples(new_samples)
         for new_sample in new_samples:
             container.add_sample(*new_sample)
