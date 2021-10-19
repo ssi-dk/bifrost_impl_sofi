@@ -95,7 +95,6 @@ def find_new_samples(fastq_dir: Path, metadata_file: Path, species: str):
                 print(f"For the sample {file1_path} we could not look up a species in the metadata file.")
                 found_species = "Unknown"
             if not found_species == species:
-                print(f"Ignoring {sample_name} - species '{found_species}' does not match '{species}'.")
                 continue
             file1_filename = file1_path.parts[-1]
             listified_filename = list(file1_filename)
@@ -116,14 +115,11 @@ def print_samples(sample_iter: Iterable):
 def maintain(species: str, sample_list: Path, fastq_dir: Path) -> bool:
     metadata_file = Path(fastq_dir.joinpath('run_metadata.tsv'))
     if not metadata_file.exists():
-        print(f"Metadata file {metadata_file} does not exist.")
-        print(f"chewieSnake will not run on folder {fastq_dir}")
+        print(f"Metadata file {metadata_file} does not exist - ignoring folder {fastq_dir}")
         return False
     container = SampleContainer(sample_list)
     fastq_dir = Path(fastq_dir)
-    print(f"Folder to add fastq files from: {fastq_dir}")
     species = str(species).replace('_', ' ')
-    print(f"Filter on species name: {species}.")
     new_samples = find_new_samples(fastq_dir, metadata_file, species)
     if len(new_samples) == 0:
         print(f"No new fastq files found in folder {fastq_dir} - {sample_list} not modified.")

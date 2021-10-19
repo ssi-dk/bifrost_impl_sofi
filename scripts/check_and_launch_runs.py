@@ -121,28 +121,25 @@ def main(args: Dict) -> None:
 
     # chewieSnake
     print()
-    print("Start chewieSnake pipeline")
+    print("Update chewieSnake sample lists")
     script_dir = Path(args["script_dir"])
     log_dir = Path(args["log_dir"])
     species_to_run = ('Salmonella_enterica',)
-    print(f"chewieSnake will run on these species: {  ', '.join(species_to_run)}")
     for species in species_to_run:
-        print(f"Running chewieSnake for {species}")
+        print(f"Update sample list for {species}")
         species_dir = Path(args["chewiesnake_config_dir"], species)
-        # Deliberately using seqs, not to_run in next line since chewieSnake does not care about Bifrost output
+        sample_list = Path(species_dir, "sample_list.tsv")
+        # Deliberately using seqsfor now - probably change to to_run later
         for institution, year, run_name in seqs:
-            print()
-            print(f"Running chewieSnake for {institution}, {year}, {run_name}")
             fastq_dir = Path(args["raw_data_dir"], institution, year, run_name)
-            sample_list = Path(species_dir, "sample_list.tsv")
+            print()
             print(f"Update {species} sample list with samples from {fastq_dir}")
             if maintain(species, sample_list, fastq_dir):
-                print("Sample list update succeeded")
-                print(f"Initialize chewieSnake job for {fastq_dir}")
+                print(f"Sample list update succeeded for {fastq_dir}")
+                # print(f"Submit chewieSnake job for {fastq_dir}")
                 # launch_chewiesnake(script_dir, species_dir, log_dir)
             else:
-                print("Sample list update failed.")
-                print(f"chewieSnake will not be run for {fastq_dir}")
+                print(f"Sample list update failed for {fastq_dir}")
 
 if __name__ == '__main__':
 
