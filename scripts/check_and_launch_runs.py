@@ -133,13 +133,13 @@ def main(args: Dict) -> None:
         for institution, year, run_name in seqs:
             fastq_dir = Path(args["raw_data_dir"], institution, year, run_name)
             print()
-            print(f"Update {species} sample list with samples from {fastq_dir}")
+            print(f"Update {species} sample list with samples from {institution}/{year}/{run_name}")
             if maintain(species, sample_list, fastq_dir):
-                print(f"Sample list update function succeeded for {fastq_dir}")
+                print(f"Sample list update function succeeded for {institution}/{year}/{run_name}")
                 # print(f"Submit chewieSnake job for {fastq_dir}")
                 # launch_chewiesnake(script_dir, species_dir, log_dir)
             else:
-                print(f"Sample list update function failed for {fastq_dir}")
+                print(f"Sample list update function failed for {institution}/{year}/{run_name}")
 
 if __name__ == '__main__':
 
