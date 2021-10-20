@@ -118,9 +118,9 @@ def maintain(species: str, sample_list: Path, fastq_dir: Path) -> bool:
     species = str(species).replace('_', ' ')
     new_samples = find_new_samples(fastq_dir, metadata_file, species)
     if len(new_samples) == 0:
-        print(f"No new samples found in {fastq_dir}")
+        print(f"No {species} samples found in {fastq_dir}")
     else:
-        print("New samples found:")
+        print(f"{species} samples found:")
         print_samples(new_samples)
         for new_sample in new_samples:
             container.add_sample(*new_sample)
