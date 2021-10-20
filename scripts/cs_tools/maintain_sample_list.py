@@ -90,7 +90,8 @@ def find_new_samples(fastq_dir: Path, metadata_file: Path, species: str):
                 print(e)
                 print("The faulty sample was:")
                 print(sample)
-                continue
+                print("Skipping the whole folder!")
+                return None
             file1_full_path = fastq_dir.joinpath(file1_filename)
             file2_full_path = fastq_dir.joinpath(file2_filename)
             try:
@@ -101,6 +102,8 @@ def find_new_samples(fastq_dir: Path, metadata_file: Path, species: str):
                 print("Error: one or both of these files do not exist:")
                 print(file1_full_path)
                 print(file2_full_path)
+                print("Skipping the whole folder!")
+                return None
     return output
 
 def print_samples(sample_iter: Iterable):
@@ -117,6 +120,8 @@ def maintain(species: str, sample_list: Path, fastq_dir: Path) -> bool:
     fastq_dir = Path(fastq_dir)
     species = str(species).replace('_', ' ')
     new_samples = find_new_samples(fastq_dir, metadata_file, species)
+    if new_samples is None:
+        return False
     if len(new_samples) == 0:
         print(f"No {species} samples found in {fastq_dir}")
     else:
