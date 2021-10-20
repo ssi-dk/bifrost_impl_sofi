@@ -68,43 +68,34 @@ def read_sample_list(sample_list):
 
 def find_new_samples(fastq_dir: Path, metadata_file: Path, species: str):
     """
-    Find samples of provided species in folder fastq_dir.
-    This is done by, looking up species in run_metadata.tsv and filter by 'species' in second column.
-    Return a list of (sample_name, file1, file2) where file1, file2 have full paths.
+    Find samples of provided species in folder fastq_dir by reading metadata file.
+    Species is filtered by the second column.
+    Return a list of (sequence_id, file1, file2) where file1, file2 have full paths.
     """
     output = list()
-    r1_files_gen = fastq_dir.glob("*_S*_R1_001.fastq*")
     with open(metadata_file, 'r') as run_metadata_tsv:
-        species_lookup_dict = dict()
         for line in run_metadata_tsv:
-            sample_species = line.split('\t')[0:2]
+            sample = line.split('\t')
             try:
-                species_lookup_dict[sample_species[0]] = sample_species[1]
-            except IndexError:
-                print(f"Error when looking for samples in fastq_dir {fastq_dir}")
-                print("sample_species list:")
-                print(sample_species)
-    
-    while True:
-        try:
-            file1_path = Path(next(r1_files_gen))
-            sample_name = file1_path.stem[:-22]
-            try:
-                found_species: str = species_lookup_dict[sample_name.replace("'", "")]
+                sample_species = sample[1].replace(' ', '_')
+                if sample_species != species:
+                    continue
+                sequence_id = sample[6]
+                file1_filename, file2_filename = sample[7].split('/')
             except KeyError:
-                print(f"For the sample {file1_path} we could not look up a species in the metadata file.")
-                found_species = "Unknown"
-            if not found_species == species:
+                print(f"Error processing metadata file in {fastq_dir}. The faulty line was:")
+                print(sample)
                 continue
-            file1_filename = file1_path.parts[-1]
-            listified_filename = list(file1_filename)
-            listified_filename[-14] = '2'
-            file2_filename = ''.join(listified_filename)
-            file2_path = file1_path.with_name(file2_filename)
-            assert(file2_path.exists())
-            output.append((sample_name, str(file1_path), str(file2_path)))
-        except StopIteration:
-            break
+            file1_full_path = fastq_dir.joinpath(file1_filename)
+            file2_full_path = fastq_dir.joinpath(file2_filename)
+            try:
+                assert file1_full_path.exists()
+                assert file2_full_path.exists()
+                output.append((sequence_id, file1_full_path, file2_full_path))
+            except AssertionError:
+                print("Error: one or both of these files do not exist:")
+                print(file1_full_path)
+                print(file2_full_path)
     return output
 
 def print_samples(sample_iter: Iterable):
