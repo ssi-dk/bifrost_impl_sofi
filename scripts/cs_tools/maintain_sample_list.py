@@ -49,7 +49,7 @@ class SampleContainer:
         with open(self._sample_list_path, 'w') as sample_list:
             sample_list.write('sample\tfq1\tfq2\n')
             for k, v in self._samples.items():
-                line = '\t'.join((k, v[0], v[1])) + '\n'
+                line = '\t'.join((k, str(v[0]), str(v[1]))) + '\n'
                 sample_list.write(line)
             sample_list.write('\n')
             
@@ -80,7 +80,7 @@ def find_new_samples(fastq_dir: Path, metadata_file: Path, species: str):
                 continue
             sample = line.split('\t')
             try:
-                sample_species = sample[1].replace(' ', '_')
+                sample_species = sample[1]
                 if sample_species != species:
                     continue
                 sequence_id = sample[6]
