@@ -78,7 +78,7 @@ def find_new_samples(fastq_dir: Path, metadata_file: Path, species: str):
         for line in run_metadata_tsv:
             if line == '\n':  # Ignore blank lines
                 continue
-            sample = line.split('\t')
+            sample = line.rstrip().split('\t')
             try:
                 sample_species = sample[1]
                 if sample_species != species:
