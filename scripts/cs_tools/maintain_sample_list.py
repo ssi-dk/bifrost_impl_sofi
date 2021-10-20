@@ -74,7 +74,10 @@ def find_new_samples(fastq_dir: Path, metadata_file: Path, species: str):
     """
     output = list()
     with open(metadata_file, 'r') as run_metadata_tsv:
+        next(run_metadata_tsv)  # Ignore header
         for line in run_metadata_tsv:
+            if line == '\n':  # Ignore blank lines
+                continue
             sample = line.split('\t')
             try:
                 sample_species = sample[1].replace(' ', '_')
@@ -82,8 +85,10 @@ def find_new_samples(fastq_dir: Path, metadata_file: Path, species: str):
                     continue
                 sequence_id = sample[6]
                 file1_filename, file2_filename = sample[7].split('/')
-            except KeyError:
-                print(f"Error processing metadata file in {fastq_dir}. The faulty line was:")
+            except (KeyError, IndexError) as e:
+                print(f"Error processing metadata file in {fastq_dir}. The thrown exception was:")
+                print(e)
+                print("The faulty sample was:")
                 print(sample)
                 continue
             file1_full_path = fastq_dir.joinpath(file1_filename)
