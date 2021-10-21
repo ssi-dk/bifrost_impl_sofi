@@ -47,9 +47,9 @@ class SampleContainer:
                 sample_list.write(line)
             sample_list.write('\n')
             
-    def find_new_samples(self, fastq_dir: Path, metadata_file: Path, species: str):
+    def find_new_samples(self, fastq_dir: Path, metadata_file: Path):
         """
-        Find samples of provided species in folder fastq_dir by reading metadata file.
+        Find samples of species in folder fastq_dir by reading metadata file.
         Species is filtered by the second column.
         Return a list of (sequence_id, file1, file2) where file1, file2 have full paths.
         """
@@ -62,7 +62,7 @@ class SampleContainer:
                 sample = line.rstrip().split('\t')
                 try:
                     sample_species = sample[1]
-                    if sample_species != species:
+                    if sample_species != self.species:
                         continue
                     sequence_id = sample[6]
                     file1_filename, file2_filename = sample[7].split('/')
@@ -92,13 +92,13 @@ class SampleContainer:
         for sample in sample_iter:
             print(sample[0], sample[1])
 
-    def maintain(self, species: str, fastq_dir: Path) -> bool:
+    def maintain(self, fastq_dir: Path) -> bool:
         metadata_file = Path(fastq_dir.joinpath('run_metadata.tsv'))
         if not metadata_file.exists():
             print(f"Metadata file {metadata_file} does not exist - ignoring folder")
             return False
         fastq_dir = Path(fastq_dir)
-        species = str(species).replace('_', ' ')
+        species = str(self._species).replace('_', ' ')
         new_samples = self.find_new_samples(fastq_dir, metadata_file, species)
         if new_samples is None:
             return False
