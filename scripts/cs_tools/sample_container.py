@@ -21,7 +21,7 @@ class SampleContainer:
                     self.add_sample(sample_name, file1, file2)
         else:
             print(f"{str(self._sample_list_path)} did not exist, but will be created")
-    
+
     def read_sample_list(self, sample_list):
         output = list()
         while True:
@@ -33,10 +33,10 @@ class SampleContainer:
             except StopIteration:
                 break
         return output
-    
+
     def add_sample(self, sample_name: str, file1: str, file2: str):
         self._samples[sample_name] = (file1, file2)
-    
+
     def list_samples(self):
         items = ((k, v[0], v[1]) for k, v in self._samples.items())
         return items
