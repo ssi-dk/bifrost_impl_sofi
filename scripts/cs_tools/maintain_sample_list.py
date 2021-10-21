@@ -3,10 +3,12 @@ from typing import Iterable
 
 
 class SampleContainer:
-    _samples: dict = {}
+    _species: str
     _sample_list_path: Path
+    _samples: dict = {}
 
-    def __init__(self, sample_list_path: Path):
+    def __init__(self, species: str, sample_list_path: Path):
+        self._species = species
         self._sample_list_path = sample_list_path
         if self._sample_list_path.exists():
             print(f"Reading sample list in {str(self._sample_list_path)}")
