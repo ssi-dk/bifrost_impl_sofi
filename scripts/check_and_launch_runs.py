@@ -130,7 +130,7 @@ def main(args: Dict) -> None:
         species_dir = Path(args["chewiesnake_config_dir"], species)
         sample_list = Path(species_dir, "sample_list.tsv")
         container = SampleContainer(species, sample_list)
-        for institution, year, run_name in seqs:
+        for institution, year, run_name in to_run:
             fastq_dir = Path(args["raw_data_dir"], institution, year, run_name)
             print()
             print(f"Update {species} sample list with samples from {institution}/{year}/{run_name}")
