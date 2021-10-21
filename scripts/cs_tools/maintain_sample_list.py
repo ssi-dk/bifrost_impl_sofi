@@ -111,12 +111,11 @@ def print_samples(sample_iter: Iterable):
     for sample in sample_iter:
         print(sample[0], sample[1])
 
-def maintain(species: str, sample_list: Path, fastq_dir: Path) -> bool:
+def maintain(species: str, container: SampleContainer, fastq_dir: Path) -> bool:
     metadata_file = Path(fastq_dir.joinpath('run_metadata.tsv'))
     if not metadata_file.exists():
         print(f"Metadata file {metadata_file} does not exist - ignoring folder")
         return False
-    container = SampleContainer(sample_list)
     fastq_dir = Path(fastq_dir)
     species = str(species).replace('_', ' ')
     new_samples = find_new_samples(fastq_dir, metadata_file, species)
