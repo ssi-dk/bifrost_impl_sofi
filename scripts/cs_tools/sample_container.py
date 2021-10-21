@@ -64,7 +64,7 @@ class SampleContainer:
                 sample = line.rstrip().split('\t')
                 try:
                     sample_species = sample[1]
-                    if sample_species != self._species:
+                    if sample_species.replace(' ', '_') != self._species:
                         continue
                     sequence_id = sample[6]
                     file1_filename, file2_filename = sample[7].split('/')
