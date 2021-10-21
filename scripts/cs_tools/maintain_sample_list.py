@@ -8,6 +8,8 @@ class SampleContainer:
     _samples: dict = {}
 
     def __init__(self, species: str, sample_list_path: Path):
+        if ' ' in species:
+            raise ValueError("species cannot contain blanks - please use '_' instead.")
         self._species = species
         self._sample_list_path = sample_list_path
         if self._sample_list_path.exists():
