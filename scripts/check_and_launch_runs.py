@@ -140,6 +140,7 @@ def main(args: Dict) -> None:
                 print(f"Sample list update function failed for {institution}/{year}/{run_name}")
     
         print(f"Finished updating sample list for {species}")
+        print()
         print(f"Check if it's OK to run ChewieSnake for {species} at this point")
         with open(species_dir.joinpath('output').joinpath('pipeline_status.txt')) as pipeline_status:
             status, date = pipeline_status.readline().split('\t')
