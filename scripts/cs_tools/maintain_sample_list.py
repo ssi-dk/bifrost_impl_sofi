@@ -85,10 +85,10 @@ class SampleContainer:
                     return None
         return output
 
-def print_samples(sample_iter: Iterable):
-    print("(SampleID , File 1)")
-    for sample in sample_iter:
-        print(sample[0], sample[1])
+    def print_samples(self, sample_iter: Iterable):
+        print("(Sequence ID , File 1)")
+        for sample in sample_iter:
+            print(sample[0], sample[1])
 
 def maintain(species: str, container: SampleContainer, fastq_dir: Path) -> bool:
     metadata_file = Path(fastq_dir.joinpath('run_metadata.tsv'))
@@ -104,7 +104,7 @@ def maintain(species: str, container: SampleContainer, fastq_dir: Path) -> bool:
         print(f"No {species} samples found in {fastq_dir}")
     else:
         print(f"{species} samples found:")
-        print_samples(new_samples)
+        container.print_samples(new_samples)
         for new_sample in new_samples:
             container.add_sample(*new_sample)
         container.save()
