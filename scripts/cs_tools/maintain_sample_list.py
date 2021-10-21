@@ -11,7 +11,7 @@ class SampleContainer:
         if self._sample_list_path.exists():
             print(f"Reading sample list in {str(self._sample_list_path)}")
             with open(self._sample_list_path, 'r') as sample_list:
-                for (sample_name, file1, file2) in self.read_sample_list(self, sample_list):
+                for (sample_name, file1, file2) in self.read_sample_list(sample_list):
                     if sample_name == 'sample':  # ignore header
                         continue
                     self.add_sample(sample_name, file1, file2)
