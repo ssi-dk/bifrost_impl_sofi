@@ -121,7 +121,7 @@ def main(args: Dict) -> None:
 
     # chewieSnake
     print()
-    print("Update chewieSnake sample lists")
+    print("Update ChewieSnake sample lists")
     script_dir = Path(args["script_dir"])
     log_dir = Path(args["log_dir"])
     species_to_run = ('Salmonella_enterica',)
@@ -130,7 +130,6 @@ def main(args: Dict) -> None:
         species_dir = Path(args["chewiesnake_config_dir"], species)
         sample_list = Path(species_dir, "sample_list.tsv")
         container = SampleContainer(species, sample_list)
-        # Deliberately using seqsfor now - probably change to to_run later
         for institution, year, run_name in seqs:
             fastq_dir = Path(args["raw_data_dir"], institution, year, run_name)
             print()
@@ -140,8 +139,10 @@ def main(args: Dict) -> None:
             else:
                 print(f"Sample list update function failed for {institution}/{year}/{run_name}")
     
-        print(f"Submit chewieSnake job for {species}")
-        launch_chewiesnake(script_dir, species_dir, log_dir)
+        print(f"Finished updating sample list for {species}")
+        print(f"Check if it's OK to run ChewieSnake for {species} at this point")
+        # print(f"Submit chewieSnake job for {species}")
+        # launch_chewiesnake(script_dir, species_dir, log_dir)
 
 if __name__ == '__main__':
 
