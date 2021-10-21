@@ -5,7 +5,7 @@ import subprocess
 from typing import Set, List, Dict
 from pathlib import Path
 
-from cs_tools.maintain_sample_list import SampleContainer
+from cs_tools.sample_container import SampleContainer
 
 # def cmdline_args() -> argparse.Namespace:
 
