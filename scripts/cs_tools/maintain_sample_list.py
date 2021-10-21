@@ -45,46 +45,45 @@ class SampleContainer:
                 sample_list.write(line)
             sample_list.write('\n')
             
-
-def find_new_samples(fastq_dir: Path, metadata_file: Path, species: str):
-    """
-    Find samples of provided species in folder fastq_dir by reading metadata file.
-    Species is filtered by the second column.
-    Return a list of (sequence_id, file1, file2) where file1, file2 have full paths.
-    """
-    output = list()
-    with open(metadata_file, 'r') as run_metadata_tsv:
-        next(run_metadata_tsv)  # Ignore header
-        for line in run_metadata_tsv:
-            if line == '\n':  # Ignore blank lines
-                continue
-            sample = line.rstrip().split('\t')
-            try:
-                sample_species = sample[1]
-                if sample_species != species:
+    def find_new_samples(self, fastq_dir: Path, metadata_file: Path, species: str):
+        """
+        Find samples of provided species in folder fastq_dir by reading metadata file.
+        Species is filtered by the second column.
+        Return a list of (sequence_id, file1, file2) where file1, file2 have full paths.
+        """
+        output = list()
+        with open(metadata_file, 'r') as run_metadata_tsv:
+            next(run_metadata_tsv)  # Ignore header
+            for line in run_metadata_tsv:
+                if line == '\n':  # Ignore blank lines
                     continue
-                sequence_id = sample[6]
-                file1_filename, file2_filename = sample[7].split('/')
-            except (KeyError, IndexError) as e:
-                print(f"Error processing metadata file in {fastq_dir}. The thrown exception was:")
-                print(e)
-                print("The faulty sample was:")
-                print(sample)
-                print("Skipping the whole folder!")
-                return None
-            file1_full_path = fastq_dir.joinpath(file1_filename)
-            file2_full_path = fastq_dir.joinpath(file2_filename)
-            try:
-                assert file1_full_path.exists()
-                assert file2_full_path.exists()
-                output.append((sequence_id, file1_full_path, file2_full_path))
-            except AssertionError:
-                print("Error: one or both of these files do not exist:")
-                print(file1_full_path)
-                print(file2_full_path)
-                print("Skipping the whole folder!")
-                return None
-    return output
+                sample = line.rstrip().split('\t')
+                try:
+                    sample_species = sample[1]
+                    if sample_species != species:
+                        continue
+                    sequence_id = sample[6]
+                    file1_filename, file2_filename = sample[7].split('/')
+                except (KeyError, IndexError) as e:
+                    print(f"Error processing metadata file in {fastq_dir}. The thrown exception was:")
+                    print(e)
+                    print("The faulty sample was:")
+                    print(sample)
+                    print("Skipping the whole folder!")
+                    return None
+                file1_full_path = fastq_dir.joinpath(file1_filename)
+                file2_full_path = fastq_dir.joinpath(file2_filename)
+                try:
+                    assert file1_full_path.exists()
+                    assert file2_full_path.exists()
+                    output.append((sequence_id, file1_full_path, file2_full_path))
+                except AssertionError:
+                    print("Error: one or both of these files do not exist:")
+                    print(file1_full_path)
+                    print(file2_full_path)
+                    print("Skipping the whole folder!")
+                    return None
+        return output
 
 def print_samples(sample_iter: Iterable):
     print("(SampleID , File 1)")
@@ -98,7 +97,7 @@ def maintain(species: str, container: SampleContainer, fastq_dir: Path) -> bool:
         return False
     fastq_dir = Path(fastq_dir)
     species = str(species).replace('_', ' ')
-    new_samples = find_new_samples(fastq_dir, metadata_file, species)
+    new_samples = container.find_new_samples(fastq_dir, metadata_file, species)
     if new_samples is None:
         return False
     if len(new_samples) == 0:
