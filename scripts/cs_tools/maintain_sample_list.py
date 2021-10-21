@@ -101,7 +101,7 @@ class SampleContainer:
             return False
         fastq_dir = Path(fastq_dir)
         species = str(self._species).replace('_', ' ')
-        new_samples = self.find_new_samples(fastq_dir, metadata_file, species)
+        new_samples = self.find_new_samples(fastq_dir, metadata_file)
         if new_samples is None:
             return False
         if len(new_samples) == 0:
