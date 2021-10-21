@@ -141,8 +141,13 @@ def main(args: Dict) -> None:
     
         print(f"Finished updating sample list for {species}")
         print(f"Check if it's OK to run ChewieSnake for {species} at this point")
-        # print(f"Submit chewieSnake job for {species}")
-        # launch_chewiesnake(script_dir, species_dir, log_dir)
+        with open(species_dir.joinpath('output').joinpath('pipeline_status.txt')) as pipeline_status:
+            status, date = pipeline_status.readline().split(' ')
+        if status != 'running':
+            print(f"Pipeline status OK - submit chewieSnake job for {species}")
+            launch_chewiesnake(script_dir, species_dir, log_dir)
+        else:
+            print(f"A ChewieSnake pipeline appears to be running for {species} already - skipping this step.")
 
 if __name__ == '__main__':
 
