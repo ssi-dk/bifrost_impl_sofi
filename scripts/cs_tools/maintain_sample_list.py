@@ -11,12 +11,24 @@ class SampleContainer:
         if self._sample_list_path.exists():
             print(f"Reading sample list in {str(self._sample_list_path)}")
             with open(self._sample_list_path, 'r') as sample_list:
-                for (sample_name, file1, file2) in read_sample_list(sample_list):
+                for (sample_name, file1, file2) in self.read_sample_list(self, sample_list):
                     if sample_name == 'sample':  # ignore header
                         continue
                     self.add_sample(sample_name, file1, file2)
         else:
             print(f"{str(self._sample_list_path)} did not exist, but will be created")
+    
+    def read_sample_list(self, sample_list):
+        output = list()
+        while True:
+            try:
+                line: str = next(sample_list)
+                if len(line) > 1:  # If not in last line (which should only contain a '\n')
+                    sample_name, file1, file2 = line.rstrip().split('\t')
+                    output.append((sample_name, file1, file2))
+            except StopIteration:
+                break
+        return output
     
     def add_sample(self, sample_name: str, file1: str, file2: str):
         self._samples[sample_name] = (file1, file2)
@@ -33,18 +45,6 @@ class SampleContainer:
                 sample_list.write(line)
             sample_list.write('\n')
             
-
-def read_sample_list(sample_list):
-    output = list()
-    while True:
-        try:
-            line: str = next(sample_list)
-            if len(line) > 1:  # If not in last line (which should only contain a '\n')
-                sample_name, file1, file2 = line.rstrip().split('\t')
-                output.append((sample_name, file1, file2))
-        except StopIteration:
-            break
-    return output
 
 def find_new_samples(fastq_dir: Path, metadata_file: Path, species: str):
     """
