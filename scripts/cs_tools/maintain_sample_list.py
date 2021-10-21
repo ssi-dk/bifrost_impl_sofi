@@ -130,19 +130,3 @@ def maintain(species: str, container: SampleContainer, fastq_dir: Path) -> bool:
             container.add_sample(*new_sample)
         container.save()
     return True
-
-# Running maintain_sample_list.py as a standalone script is currently not maintained.
-""" if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Create and maintain a global sample list for chewieSnake.")
-    parser.add_argument('sample_list', help="Path and filename for sample list. If file does not exist it will be created.")
-    parser.add_argument('-d', '--fastq_dir', help="Path to existing directory containing fastq files. Default: current directory.")
-    parser.add_argument('-s', '--species', help="Optional species name to filter on. Spaces between name components must be \
-        replaced with underscores; f. ex. Salmonella_enterica.\
-        If provided, a lookup will be made in a file named 'run_metadata.tsv' inside fastq_dir, and only those \
-        samples where --species - with underscores replaced by spaces - match the second column in this file will be added to the \
-        sample list.")
-    args = parser.parse_args()
-    sample_list = Path(args.sample_list)
-    fastq_dir = Path(args.fastq_dir)
-    maintain(args.species, sample_list, fastq_dir)
- """
