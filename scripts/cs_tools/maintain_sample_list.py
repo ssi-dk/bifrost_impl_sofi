@@ -90,22 +90,22 @@ class SampleContainer:
         for sample in sample_iter:
             print(sample[0], sample[1])
 
-def maintain(species: str, container: SampleContainer, fastq_dir: Path) -> bool:
-    metadata_file = Path(fastq_dir.joinpath('run_metadata.tsv'))
-    if not metadata_file.exists():
-        print(f"Metadata file {metadata_file} does not exist - ignoring folder")
-        return False
-    fastq_dir = Path(fastq_dir)
-    species = str(species).replace('_', ' ')
-    new_samples = container.find_new_samples(fastq_dir, metadata_file, species)
-    if new_samples is None:
-        return False
-    if len(new_samples) == 0:
-        print(f"No {species} samples found in {fastq_dir}")
-    else:
-        print(f"{species} samples found:")
-        container.print_samples(new_samples)
-        for new_sample in new_samples:
-            container.add_sample(*new_sample)
-        container.save()
-    return True
+    def maintain(self, species: str, fastq_dir: Path) -> bool:
+        metadata_file = Path(fastq_dir.joinpath('run_metadata.tsv'))
+        if not metadata_file.exists():
+            print(f"Metadata file {metadata_file} does not exist - ignoring folder")
+            return False
+        fastq_dir = Path(fastq_dir)
+        species = str(species).replace('_', ' ')
+        new_samples = self.find_new_samples(fastq_dir, metadata_file, species)
+        if new_samples is None:
+            return False
+        if len(new_samples) == 0:
+            print(f"No {species} samples found in {fastq_dir}")
+        else:
+            print(f"{species} samples found:")
+            self.print_samples(new_samples)
+            for new_sample in new_samples:
+                self.add_sample(*new_sample)
+            self.save()
+        return True

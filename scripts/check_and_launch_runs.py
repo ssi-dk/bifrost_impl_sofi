@@ -135,7 +135,7 @@ def main(args: Dict) -> None:
             fastq_dir = Path(args["raw_data_dir"], institution, year, run_name)
             print()
             print(f"Update {species} sample list with samples from {institution}/{year}/{run_name}")
-            if maintain(species, container, fastq_dir):
+            if container.maintain(species, fastq_dir):
                 print(f"Sample list update function succeeded for {institution}/{year}/{run_name}")
                 # print(f"Submit chewieSnake job for {fastq_dir}")
                 # launch_chewiesnake(script_dir, species_dir, log_dir)
