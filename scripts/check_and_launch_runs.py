@@ -52,11 +52,13 @@ def launch_bifrost(script_dir: str, log_dir: str, settings_dir: str, institution
 
 def launch_chewiesnake(script_dir: Path, species_dir: Path, log_dir: Path) -> None:
     sample_list = Path(species_dir, "sample_list.tsv")
-    # This command is for testing chewieSnake with --dryrun
-    """command: str = f'cd {species_dir};\
-    /usr/local/bin/qsub -W umask=002 -N "cs_{species_dir.name[:12]}" -e {log_dir} -o {log_dir} -F "{str(sample_list)} --dryrun" {str(script_dir)}/cs_tools/run_chewiesnake.sh'"""
-    command: str = f'cd {species_dir};\
-    /usr/local/bin/qsub -W umask=002 -N "cs_{species_dir.name[:12]}" -e {log_dir} -o {log_dir} -F "{str(sample_list)}" {str(script_dir)}/cs_tools/run_chewiesnake.sh'
+    if args['chewiesnake_dryrun'] == 'True':
+        print("Running ChewieSnake with --dryrun option.")
+        command: str = f'cd {species_dir};\
+        /usr/local/bin/qsub -W umask=002 -N "cs_{species_dir.name[:12]}" -e {log_dir} -o {log_dir} -F "{str(sample_list)} --dryrun" {str(script_dir)}/cs_tools/run_chewiesnake.sh'
+    else:
+        command: str = f'cd {species_dir};\
+        /usr/local/bin/qsub -W umask=002 -N "cs_{species_dir.name[:12]}" -e {log_dir} -o {log_dir} -F "{str(sample_list)}" {str(script_dir)}/cs_tools/run_chewiesnake.sh'
     print("Command:", command)
     process: subprocess.Popen = subprocess.Popen(command,
                                                  stdout=subprocess.PIPE,
@@ -164,5 +166,6 @@ if __name__ == '__main__':
         "script_dir": os.environ["BIFROST_SCRIPT_DIR"],
         "log_dir": os.environ["BIFROST_LOG_DIR"],
         "chewiesnake_config_dir": os.environ["CHEWIESNAKE_CONFIG_DIR"],
+        "chewiesnake_dryrun": os.environ["CHEWIESNAKE_DRYRUN"],
     }
     main(args)
