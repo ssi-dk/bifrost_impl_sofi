@@ -54,9 +54,9 @@ def launch_chewiesnake(script_dir: Path, species_dir: Path, log_dir: Path) -> No
     sample_list = Path(species_dir, "sample_list.tsv")
     # This command is for testing chewieSnake with --dryrun
     """command: str = f'cd {species_dir};\
-    /usr/local/bin/qsub -W umask=002 -N "chewie_{species_dir.name}" -e {log_dir} -o {log_dir} -F "{str(sample_list)} --dryrun" {str(script_dir)}/cs_tools/run_chewiesnake.sh'"""
+    /usr/local/bin/qsub -W umask=002 -N "cs_{species_dir.name[:12]}" -e {log_dir} -o {log_dir} -F "{str(sample_list)} --dryrun" {str(script_dir)}/cs_tools/run_chewiesnake.sh'"""
     command: str = f'cd {species_dir};\
-    /usr/local/bin/qsub -W umask=002 -N "chewie_{species_dir.name}" -e {log_dir} -o {log_dir} -F "{str(sample_list)}" {str(script_dir)}/cs_tools/run_chewiesnake.sh'
+    /usr/local/bin/qsub -W umask=002 -N "cs_{species_dir.name[:12]}" -e {log_dir} -o {log_dir} -F "{str(sample_list)}" {str(script_dir)}/cs_tools/run_chewiesnake.sh'
     print("Command:", command)
     process: subprocess.Popen = subprocess.Popen(command,
                                                  stdout=subprocess.PIPE,
@@ -117,7 +117,7 @@ def main(args: Dict) -> None:
     print("Running Bifrost with these folders:")
     for institution, year, run_name in to_run:
         print(f"{institution}\t{year}\t{run_name}")
-        launch_bifrost(args["script_dir"], args["log_dir"], args["settings_dir"], institution, year, run_name)
+        # launch_bifrost(args["script_dir"], args["log_dir"], args["settings_dir"], institution, year, run_name)
 
     # chewieSnake
     print()
