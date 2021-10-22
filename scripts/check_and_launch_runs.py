@@ -142,8 +142,11 @@ def main(args: Dict) -> None:
         print(f"Finished updating sample list for {species}")
         print()
         print(f"Check if it's OK to run ChewieSnake for {species} at this point")
-        with open(species_dir.joinpath('output').joinpath('pipeline_status.txt')) as pipeline_status:
-            status, date = pipeline_status.readline().split('\t')
+        try:
+            with open(species_dir.joinpath('output').joinpath('pipeline_status.txt')) as pipeline_status:
+                status, date = pipeline_status.readline().split('\t')
+        except FileNotFoundError:
+                status = 'pipeline_status.txt not found'
         if status != 'running':
             print(f"Pipeline status OK - submit chewieSnake job for {species}")
             launch_chewiesnake(script_dir, species_dir, log_dir)
