@@ -119,7 +119,7 @@ def main(args: Dict) -> None:
     print("Running Bifrost with these folders:")
     for institution, year, run_name in to_run:
         print(f"{institution}\t{year}\t{run_name}")
-        # launch_bifrost(args["script_dir"], args["log_dir"], args["settings_dir"], institution, year, run_name)
+        launch_bifrost(args["script_dir"], args["log_dir"], args["settings_dir"], institution, year, run_name)
 
     # chewieSnake
     print()
