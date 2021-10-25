@@ -22,6 +22,12 @@ RUN_PATH=$BIFROST_INSTITUTION/$BIFROST_YEAR/$BIFROST_RUN_NAME
 BIFROST_RUN_DIR=$BIFROST_OUTPUT_DIR/$RUN_PATH
 BIFROST_READS_DIR=$BIFROST_RAW_DATA_MNT/$RUN_PATH
 
+if [[ ! -f "$BIFROST_READS_DIR/run_metadata.xlsx" && ! -f "$BIFROST_READS_DIR/run_metadata.tsv" ]]
+then
+    echo "No run_metadata[.xlsx|.tsv] found. Skipping run."
+    exit
+fi
+
 [ -d $BIFROST_RUN_DIR ] || mkdir -p $BIFROST_RUN_DIR
 cd $BIFROST_RUN_DIR
 ln -s $BIFROST_READS_DIR samples
