@@ -28,6 +28,9 @@ then
     exit
 fi
 
+#Set umask to allow writes by group (should be fvst_admins) and deny writes by all (fvst_ssi_dtu)
+umask 0002
+
 [ -d $BIFROST_RUN_DIR ] || mkdir -p $BIFROST_RUN_DIR
 cd $BIFROST_RUN_DIR
 ln -s $BIFROST_READS_DIR samples
