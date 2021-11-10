@@ -13,11 +13,11 @@ def die(message, code=1):
     print(message, file=sys.stderr)
     sys.exit(code)
 
-def get_institution_year_folders_to_remove(dirname):
+def get_institution_year_folders_to_remove(dirname: Path):
     institution_year_run_folders = []
     for institution in os.listdir(dirname):
         institution_path = os.path.join(dirname, institution)
-        if os.path.isdir(institution_path):
+        if Path.isdir(institution_path):
             for year in os.listdir(institution_path):
                 if re.match("20\d\d", year) is not None:
                     year_path = os.path.join(institution_path, year)
@@ -41,7 +41,7 @@ def locked(dirname):
 def lock(dirname):
     if not locked(dirname):
         try:
-            os.touch(str(dirname) + ".remove.lock")
+            Path(str(dirname) + ".remove.lock").touch()
             return True
         except Exception:
             return False

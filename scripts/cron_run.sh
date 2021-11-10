@@ -13,6 +13,6 @@ echo ""
 echo -n "cron_run.sh starting ($USER)" | tee -a $LOG
 date | tee -a $LOG
 source /etc/bashrc | tee -a $LOG
-python3 clean_up_runs.py 2>&1 | tee -a $LOG
+python3 utils/clean_up_runs.py 2>&1 | tee -a $LOG
 bash $BIFROST_SCRIPT_DIR/start.sh 2>&1 | tee -a $LOG
-#python3 fix_output_permissions.py 2>&1 | tee -a $LOG
+#python3 utils/fix_output_permissions.py 2>&1 | tee -a $LOG
