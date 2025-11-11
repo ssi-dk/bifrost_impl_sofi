@@ -1,9 +1,15 @@
 import argparse
 import yaml
 import os
-from datetime import datetime
+from typing import List, Tuple, Dict, TypedDict
 
-def find_runname(base_dir, institution, year, run_id):
+class ResourcesDict(TypedDict):
+    nodes: int
+    ppn: int
+    memory: str
+    walltime: str
+
+def find_runname(base_dir: str, institution: str, year: str, run_id: str) -> str:
     """
     Search for a folder containing run_id inside $BIFROST_OUTPUT_DIR/{institution}/{year}/.
     """
@@ -20,7 +26,7 @@ def find_runname(base_dir, institution, year, run_id):
 
     raise FileNotFoundError(f"No folder containing '{run_id}' found in {search_path}.")
 
-def find_runname_by_runno(base_dir, institution, year, run_no):
+def find_runname_by_runno(base_dir: str, institution: str, year: str, run_no: str) -> Tuple[List[str], List[str]]:
     """
     Find all folders matching *_N_WGS_{run_no}_* inside $BIFROST_OUTPUT_DIR/{institution}/{year}/ and return their subfolders as samples.
     """
@@ -47,7 +53,19 @@ def find_runname_by_runno(base_dir, institution, year, run_no):
 
     return matching_runs, sample_names
 
-def create_config_file(conda_envs, component_names, samples, resources, institution, years, runname, output_file="config.yaml"):
+def create_config_file(
+    conda_envs: List[str], 
+    component_names: List[str],
+    samples: List[str],
+    resources: ResourcesDict,
+    institution: List[str],
+    years: List[str],
+    runname: List[str], 
+    output_file: str = "config.yaml"
+) -> None:
+    if len(conda_envs) != len(component_names):
+        raise ValueError("--conda_envs and --component_names must have equal length.")
+
     prefix = "bifrost_"
     stage = f"{os.environ.get('BIFROST_STAGE', 'dev')}_"
 
@@ -70,11 +88,11 @@ def create_config_file(conda_envs, component_names, samples, resources, institut
 
     print(f"Config file '{output_file}' created successfully.")
 
-def expand_list(param, count):
+def expand_list(param: List[str], count: int) -> List[str]:
     """Ensure single values are applied across all elements."""
     return param * count if len(param) == 1 else param
 
-def extract_run_id(sequence_ID, institution):
+def extract_run_id(sequence_ID: str, institution: str) -> str:
     """
     Extracts the correct run_id from sequence_ID based on institution.
     
@@ -233,11 +251,11 @@ def main():
         parser.error(f"--institution must have the same number of elements as input ({num_elements}), or one value to apply to all.")
 
     # Create resources dictionary
-    resources = {
+    resources: ResourcesDict = {
         "nodes": args.nodes,
         "ppn": args.ppn,
         "memory": args.memory,
-        "walltime": str(args.walltime)
+        "walltime": str(args.walltime),
     }
 
     # Create YAML config
