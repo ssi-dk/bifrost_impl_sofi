@@ -5,6 +5,7 @@ import argparse
 from typing import List, Dict
 import pandas as pd
 from itertools import zip_longest
+from time import sleep
 
 def load_config(config_file: str) -> Dict:
     """Load the YAML configuration file."""
@@ -39,7 +40,7 @@ def check_conda_environment(required_envs: List[str]) -> None:
     else:
         print("All required Conda environments are present.")
 
-def prepare_qsub_script(conda_env: str,component_name: str,sample_name,in_dir: str,out_dir: str, runlauncher_args: str, qsub_res: dict, previous_job: str, dryrun: bool = False)->str:
+def prepare_sbatch_script(conda_env: str,component_name: str,sample_name,in_dir: str,out_dir: str, runlauncher_args: str, sbatch_res: dict, previous_job: str, dryrun: bool = False)->str:
 
     # Check if in_dir exists
     if not os.path.exists(in_dir):
@@ -51,7 +52,7 @@ def prepare_qsub_script(conda_env: str,component_name: str,sample_name,in_dir: s
 
     job_dependency = ""
     if previous_job != "0":
-        job_dependency = f"\n#PBS -W depend=afterany:{previous_job}"
+        job_dependency = f"\n#SBATCH --dependency=afterany:{previous_job}"
 
     #Define job name and path
     suffix = ""
@@ -70,13 +71,14 @@ conda activate {conda_env}\n
 python -m {component_name} --re_run --sample_subset {sample_name.split("___")[1]} --outdir {os.path.dirname(out_dir)} {runlauncher_args} \n
 conda deactivate\n"""
 
+    component_odir=f"{component_name.replace('bifrost_', '')}__{conda_env.split('_')[-1]}"
     component_cmd = f"""eval "$(conda shell.bash hook)"\n
 cd {os.environ['BASE_DIR']}\n
 . settings/env_vars.sh\n
 cd {in_dir}\n
 conda activate {conda_env}\n
-find {out_dir} -wholename "{out_dir}/{component_name.replace("bifrost_", "")}__*/runtime_set" -delete\n
-find {out_dir} -wholename "{out_dir}/{component_name.replace("bifrost_", "")}__*/datadump_complete" -delete\n
+find {out_dir} -wholename "{out_dir}/{component_odir}/runtime_set" -delete\n
+find {out_dir} -wholename "{out_dir}/{component_odir}/datadump_complete" -delete\n
 python -m {component_name} --sample_name {sample_name} --outdir {out_dir}\n
 conda deactivate\n"""
 
@@ -87,44 +89,56 @@ conda deactivate\n"""
 
     #print(f"python module command is \n {Bifrost_module_cmd}")
     
-    qsub_job_cmd = f"""#!/bin/bash
-#PBS -N {job_name}
-#PBS -W x=advres:{os.environ['BIFROST_RESNODES']}{job_dependency}
-#PBS -W umask=002
-#PBS -W group_list={os.environ['BIFROST_JOB_ACCOUNT']}
-#PBS -A {os.environ['BIFROST_JOB_ACCOUNT']}
-#PBS -d {out_dir}
-#PBS -v {os.environ['QSUB_KEEP_VARS']}
-#PBS -l nodes={qsub_res['nodes']}:ppn={qsub_res['ppn']},mem={qsub_res['memory']},walltime={qsub_res['walltime']}\n
-#PBS -o {out_dir}
-#PBS -e {out_dir}\n
+    sbatch_job_cmd = f"""#!/bin/bash
+#SBATCH -J {job_name}
+#SBATCH --partition={os.environ['BIFROST_PARTITION']}
+#SBATCH --reservation={os.environ['BIFROST_RESNODES']}{job_dependency}
+#SBATCH -A {os.environ['BIFROST_JOB_ACCOUNT']}
+#SBATCH -D {out_dir}
+#SBATCH --export={os.environ['BIFROST_KEEP_VARS']}
+#SBATCH --nodelist={sbatch_res['nodes']}
+#SBATCH --ntasks={sbatch_res['ppn']}
+#SBATCH --mem={sbatch_res['memory']}
+#SBATCH --time={sbatch_res['walltime']}
+#SBATCH --error "%x.%a.err.log"
+#SBATCH --output "%x.%a.out.log"
 set -euo pipefail\n
 {Bifrost_module_cmd}"""
 
-    pbsjob_id = "0"
+    slurmjob_id = "0"
     if dryrun == False:
+        #sleep at each
+        sleep(0.25)
         #Save the job script to a file
-        job_script_path = f"{out_dir}/job_{job_name}.pbs"
+        job_script_path = f"{out_dir}/job_{job_name}.sh"
         with open(job_script_path, "w") as job_script_file:
-            job_script_file.write(f"{qsub_job_cmd}")
+            job_script_file.write(f"{sbatch_job_cmd}")
 
-        print(f"Submitting PBS job script: {job_script_path}")
-        p = subprocess.run(["qsub", job_script_path], check=True, capture_output=True, text=True)
-        pbsjob_id = p.stdout.strip()
+        print(f"Submitting SBATCH job script: {job_script_path}")
+        try:
+            p = subprocess.run(["sbatch", "--parsable", job_script_path], check=True, capture_output=True, text=True)
+            slurmjob_id = p.stdout.strip()
+        except subprocess.CalledProcessError as e:
+            print(f"[Error] {e.returncode}: {e.cmd}")
     else:
-        print(qsub_job_cmd)
+        print(sbatch_job_cmd)
         print("--------------------------------")
 
-    return pbsjob_id
+    return slurmjob_id
 
-def main(config_file: str, dryrun: bool=False) -> None:
+def main(config_file: str, continue_from: str | None, dryrun: bool=False) -> None:
     """
     Main function to load the config, validate environment variables, and submit jobs.
     """
 
+    # Set flag as to it should continue from a given sample
+    skip_samples = False
+    if continue_from is not None:
+        skip_samples = True
+
     # Check required environment variables
     #required_env_vars = ["BIFROST_DB_KEY","BIFROST_INSTALL_DIR","BIFROST_OUTPUT_DIR", "BIFROST_INSTITUTION", "BIFROST_YEAR", "CONDA_VERSION"]
-    required_env_vars = ["BIFROST_DB_KEY","BIFROST_INSTALL_DIR","BIFROST_OUTPUT_DIR","BIFROST_ASM_OUTPUT_DIR","BIFROST_STAGE","BIFROST_RESNODES","QSUB_KEEP_VARS"]
+    required_env_vars = ["BIFROST_DB_KEY","BIFROST_INSTALL_DIR","BIFROST_OUTPUT_DIR","BIFROST_ASM_OUTPUT_DIR","BIFROST_STAGE","BIFROST_RESNODES","BIFROST_KEEP_VARS"]
    
     check_environment_variables(required_env_vars,True)
 
@@ -144,7 +158,7 @@ def main(config_file: str, dryrun: bool=False) -> None:
     if len(components) != len(conda_envs):
         raise ValueError("The number of component names: {components} must match the number of conda environments: {conda_envs}.")
             
-    #Extract qsub resources
+    #Extract sbatch resources
     resources = config["resources"]
     required_resource_keys = ["nodes", "ppn", "memory", "walltime"]
     
@@ -165,7 +179,7 @@ def main(config_file: str, dryrun: bool=False) -> None:
         # default to SEQ
         bifrost_outdir = {s: str(os.environ['BIFROST_OUTPUT_DIR']) for s in samples}
 
-    pbsjob_ids = {x: ["0"] for x in samples}
+    slurmjob_ids = {x: ["0"] for x in samples}
 
     run_launcher_args: Dict[str] = {}
     if "bifrost_run_launcher" in components:
@@ -178,37 +192,50 @@ def main(config_file: str, dryrun: bool=False) -> None:
 
         run_launcher_args = {x: f" --run_mode {rmode} --component_subset {selected_components} --re_run_components" for x, rmode in zip_longest(samples, runmodes, fillvalue=runmodes[0])}
 
-
-    for component, conda_env in zip(components, conda_envs):
-        if len(samples) == len(years): #sample specific years - e.g. 2022,2024
-            for sample,runname,year,institution in zip_longest(samples,runnames,years,institutions, fillvalue=institutions[0]): #ensure accurate pairing between sample specific information
-                workdir = os.path.join(bifrost_outdir[sample],institution,year,runname)
-                print(f"workdir as {workdir}")
-                output_dir = os.path.join(workdir,sample)
-                print(f"outdir as {output_dir}")
-                pbsjob_ids[sample].append(prepare_qsub_script(conda_env,component,sample,workdir,output_dir,run_launcher_args[sample],resources,pbsjob_ids[sample][-1],dryrun))
-                if component == "bifrost_run_launcher":
-                    run_launcher_args[sample] = run_launcher_args[sample].replace("--re_run_components", "--finish")
-        else: #samples from same year
-            year = years[0]
-            print(f"Year is {year}")
-                #potentially different institutions
-            for sample,runname,year,institution in zip_longest(samples,runnames,years,institutions, fillvalue=institutions[0]):
-                workdir = os.path.join(bifrost_outdir[sample],institution,year)
-                print(f"workdir as {workdir}")
-                output_dir = os.path.join(workdir,runname)
-                print(f"outdir as {output_dir}")
-                pbsjob_ids[sample].append(prepare_qsub_script(conda_env,component,sample,workdir,output_dir,run_launcher_args[sample],resources,pbsjob_ids[sample][-1],dryrun))
-                if component == "bifrost_run_launcher":
+    if len(samples) == len(years): #sample specific years - e.g. 2022,2024
+        for sample,runname,year,institution in zip_longest(samples,runnames,years,institutions, fillvalue=institutions[0]): #ensure accurate pairing between sample specific information
+            if sample == continue_from:
+                skip_samples = False
+            if skip_samples:
+                print(f"[Skipping] {sample}")
+            else:
+                print(f"[Processing] {sample}")
+                for component, conda_env in zip(components, conda_envs):
+                    workdir = os.path.join(bifrost_outdir[sample],institution,year,runname)
+                    print(f"workdir as {workdir}")
+                    output_dir = os.path.join(workdir,sample)
+                    print(f"outdir as {output_dir}")
+                    slurmjob_ids[sample].append(prepare_sbatch_script(conda_env,component,sample,workdir,output_dir,run_launcher_args[sample],resources,slurmjob_ids[sample][-1],dryrun))
+                    if component == "bifrost_run_launcher":
                         run_launcher_args[sample] = run_launcher_args[sample].replace("--re_run_components", "--finish")
+    else: #samples from same year
+        year = years[0]
+        print(f"Year is {year}")
+        #potentially different institutions
+        for sample,runname,year,institution in zip_longest(samples,runnames,years,institutions, fillvalue=institutions[0]):
+            if sample == continue_from:
+                skip_samples = False
+            if skip_samples:
+                print(f"[Skipping] {sample}")
+            else:
+                print(f"[Processing] {sample}")
+                for component, conda_env in zip(components, conda_envs):
+                    workdir = os.path.join(bifrost_outdir[sample],institution,year)
+                    print(f"workdir as {workdir}")
+                    output_dir = os.path.join(workdir,runname)
+                    print(f"outdir as {output_dir}")
+                    slurmjob_ids[sample].append(prepare_sbatch_script(conda_env,component,sample,workdir,output_dir,run_launcher_args[sample],resources,slurmjob_ids[sample][-1],dryrun))
+                    if component == "bifrost_run_launcher":
+                            run_launcher_args[sample] = run_launcher_args[sample].replace("--re_run_components", "--finish")
 
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description="Run Bifrost pipeline.")
 
     parser.add_argument("--config_file", type=str, help="Path to the YAML configuration file.")
-    parser.add_argument("--dryrun", action="store_true", help="Submits the generated PBS files for execution.")
+    parser.add_argument("--continued", type=str, help="Continue submitting jobs from this sample (including it)")
+    parser.add_argument("--dryrun", action="store_true", help="Submits the generated SBATCH job files for execution.")
 
     args = parser.parse_args()
 
-    main(args.config_file,args.dryrun)
+    main(args.config_file, args.continued, args.dryrun)
