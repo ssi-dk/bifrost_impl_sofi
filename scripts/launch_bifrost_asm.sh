@@ -33,7 +33,7 @@ ln -s $BIFROST_ASM_DIR samples
 
 
 module load $CONDA_VERSION;
-source $BIFROST_CONDA_PATH/conda_init.sh
+eval $(conda shell.bash hook)
 $CONDACMD activate bifrost_base
 
 if [[ -f "$BIFROST_ASM_DIR/sofi_metadata.xlsx" && ! -f "$BIFROST_ASM_DIR/sofi_metadata.tsv" ]]
