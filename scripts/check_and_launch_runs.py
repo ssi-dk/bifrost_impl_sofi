@@ -60,24 +60,24 @@ def launch_bifrost(script_dir: str, log_dir: str, settings_dir: str, institution
     #script_name = "launch_bifrost.sh"
 
     command = f'cd {script_dir};\
-    sbatch {bifrost_acct_options} -J "{job_name}" --error="{log_dir}/{script_name}.err.log" --output="{log_dir}/{script_name}.out.log"  --export="$BIFROST_KEEP_VARS"\
+    sbatch {bifrost_acct_options} -J "{job_name}" --parsable --error="{log_dir}/{script_name}.err.log" --output="{log_dir}/{script_name}.out.log"  --export="$BIFROST_KEEP_VARS"\
     --ntasks=4 --mem=12G --time=03:00:00 \
     {script_dir}/{script_name} {institution} {year} {run_name} {settings_dir}'
 
     #print(f"the sequencing command is {command}")
     logging.info(f"Submitting sequencing job: {command}")
 
-    process = subprocess.Popen(command,
+    process = subprocess.run(command,
                                stdout=subprocess.PIPE,
-                               stderr=subprocess.STDOUT,
+                               stderr=subprocess.PIPE,
                                shell=True,
-                               env=os.environ)
-    process_out, process_err = process.communicate()
+                               env=os.environ,
+                               text=True)
 
     if process.returncode == 0:
-        logging.info(f"Sequencing job {job_name} submitted successfully.")
+        logging.info(f"Sequencing job {job_name} submitted successfully with job id {process.stdout}")
     else:
-        logging.error(f"Error submitting sequencing job {job_name}: {process_err.decode().strip()}")
+        logging.error(f"Error submitting sequencing job {job_name}: {process.stderr}")
 
 def get_institution_year_folders(dirname):
     institution_year_run_folders = []
